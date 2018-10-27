@@ -17,6 +17,7 @@ namespace MyChatServer
         static void Main(string[] args)
         {
             var wssv = new WebSocketServer();
+            //wssv.Log.Level = LogLevel.Warn;
             wssv.AddWebSocketService<ChatBehaviour>("/chat");
             wssv.Start();
             Console.ReadKey(true);
@@ -28,10 +29,9 @@ namespace MyChatServer
             public Dictionary<string, string> Users = new Dictionary<string, string>();
             protected override void OnClose(CloseEventArgs e)
             {
-                //base.OnClose(e);
+                base.OnClose(e);
+                Sessions.Broadcast(new WsEvent(WsEventsType.USR_LEAVE, Users[ID]));
                 Users.Remove(ID);
-                Sessions.Broadcast(new WsEvent(WsEventsType.USR_LEAVE))
-                Console.WriteLine(e);
             }
 
             //protected override void OnError(ErrorEventArgs e) => base.OnError(e);
@@ -71,12 +71,6 @@ namespace MyChatServer
             //        if (s.ID == ID) continue;
             //        Sessions.SendTo(data, s.ID);
             //    }
-            //}
-
-            //protected override void OnOpen()
-            //{
-            //    //base.OnOpen();
-            //    //users.Add();
             //}
         }
 

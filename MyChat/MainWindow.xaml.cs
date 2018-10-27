@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -32,34 +33,37 @@ namespace MyChat
 
         private void SetUsername()
         {
-            var sp = new StackPanel
+            //var sp = new StackPanel
+            //{
+            //    HorizontalAlignment = HorizontalAlignment.Center,
+            //    VerticalAlignment = VerticalAlignment.Center
+            //};
+            //var usernameText = new TextBox { Text = "user" + new Random().Next() };
+            //var bt = new Button
+            //{
+            //    Content = "Enter username",
+            //    Margin = new Thickness(5, 5, 5, 5)
+            //};
+            //bt
+            loginButton.Click += (_, __) =>
             {
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            var tb = new TextBox { Text = "user" + new Random().Next() };
-            var bt = new Button
-            {
-                Content = "Enter username",
-                Margin = new Thickness(5, 5, 5, 5)
-            };
-            bt.Click += (_, __) =>
-            {
-                if (tb.Text != string.Empty)
+                if (usernameText.Text != string.Empty)
                 {
-                    cc = new ChatClient(tb.Text, ProcessEvent);
+                    cc = new ChatClient(usernameText.Text, ProcessEvent);
                     //tb_history.Text += "Username: " + tb.Text + '\n';
-                    Content = mainGrid;
-                    cc.Connect(tb.Text);
+                    //Content = mainGrid;
+                    mainGrid.Visibility = Visibility.Visible;
+                    loginPanel.Visibility = Visibility.Collapsed;
+                    cc.Connect(usernameText.Text);
 
                     // bt = null; tb = null; sp = null; // eb = null;
                 }
             };
-            sp.Children.Add(tb);
-            sp.Children.Add(bt);
-            Content = sp;
+            //sp.Children.Add(tb);
+            //sp.Children.Add(bt);
+            //Content = sp;
         }
-
+        private char[] delimetr = { '\t' };
         void ProcessEvent(WsEvent e)
         {
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(() =>
@@ -67,20 +71,30 @@ namespace MyChat
                 switch (e.Type)
                 {
                     case WsEventsType.USR_NEW:
-                        tb_history.Text += "New user joined" + e.Payload + '\n';
+                        tb_history.Text += "New user joined: " + e.Payload + '\n';
                         break;
                     case WsEventsType.MSG:
-                        tb_history.Text += e.Payload + '\n';
+                        var m = e.Payload.Split(delimetr, 2);
+                        tb_history.Text += m[0] + ": " + m[1] + '\n';
+                        //tb_history.Text += e.Payload + '\n';
                         break;
                     case WsEventsType.ERROR:
                         tb_history.Text += "ERROR: " + e.Payload + '\n';
+                        break;
+                    case WsEventsType.USR_LEAVE:
+                        tb_history.Text += e.Payload + " left chat\n";
                         break;
                     default:
                         tb_history.Text += "Unknown event: " + e + '\n';
                         break;
                 }
-                //tb_history.Text += e + '\n';
             }));
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            cc.Disconnect();
+            base.OnClosing(e);
         }
 
         private void bt_send_Click(object sender, RoutedEventArgs e)

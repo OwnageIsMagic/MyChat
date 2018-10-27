@@ -4,12 +4,6 @@ using WebSocketSharp;
 using System.Threading;
 using System.Threading.Tasks;
 
-
-//using Microsoft.AspNet.SignalR;
-//using Microsoft.Owin.Cors;
-//using Microsoft.Owin.Hosting;
-//using Owin;
-
 namespace MyChat
 {
     class ChatClient
@@ -32,6 +26,7 @@ namespace MyChat
             Username = username;
             ws = new WebSocket("ws://localhost/chat");
             ws.OnMessage += (_, ev) => Display(new WsEvent(ev.Data));
+            ws.OnClose += (_, ev) => Display(new WsEvent(WsEventsType.ERROR, "Disconnected"));
             ws.Connect();
             ws.Send(new WsEvent(WsEventsType.USR_NEW, username));
         }
@@ -40,24 +35,10 @@ namespace MyChat
             ws.Send(new WsEvent(WsEventsType.MSG, message));
         }
 
-        //private void OnMessage(object sender, MessageEventArgs ev)
-        //{
-        //  Display(new WsEvent(ev.Data));
-        //switch (e.Type)
-        //{
-        //    case WsEventsType.MSG:
-
-        //        break;
-        //    case WsEventsType.SYS_EVENT:
-        //        break;
-        //    case WsEventsType.NEW_USR:
-        //        break;
-        //    case WsEventsType.ERROR:
-        //        break;
-        //    default:
-        //        break;
-        //}
-        //}
+        public void Disconnect()
+        {
+            ws.Close();
+        }
     }
 
 }
