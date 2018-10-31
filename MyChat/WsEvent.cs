@@ -5,6 +5,8 @@ namespace MyChat
 {
     public class WsEvent
     {
+        public static char[] Delimiter = { '\t' };
+
         public WsEventsType Type;
         public string Payload;
         private string msg;
@@ -32,6 +34,7 @@ namespace MyChat
             return e.ToString();
         }
     }
+
 
     public enum WsEventsType
     {

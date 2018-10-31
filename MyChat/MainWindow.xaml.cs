@@ -63,7 +63,6 @@ namespace MyChat
             //sp.Children.Add(bt);
             //Content = sp;
         }
-        private char[] delimetr = { '\t' };
         void ProcessEvent(WsEvent e)
         {
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(() =>
@@ -74,7 +73,7 @@ namespace MyChat
                         tb_history.Text += "New user joined: " + e.Payload + '\n';
                         break;
                     case WsEventsType.MSG:
-                        var m = e.Payload.Split(delimetr, 2);
+                        var m = e.Payload.Split(WsEvent.Delimiter, 2);
                         tb_history.Text += m[0] + ": " + m[1] + '\n';
                         //tb_history.Text += e.Payload + '\n';
                         break;
